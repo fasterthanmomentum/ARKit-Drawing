@@ -5,6 +5,9 @@ import ARKit
 class ViewController: UIViewController, ARSCNViewDelegate {
 
     @IBOutlet var sceneView: ARSCNView!
+    var selectNode: SCNNode?
+    
+    
     let configuration = ARWorldTrackingConfiguration()
     
     enum ObjectPlacementMode {
@@ -49,12 +52,44 @@ class ViewController: UIViewController, ARSCNViewDelegate {
             optionsViewController.delegate = self
         }
     }
+    func addNodeInFront(_ node: SCNNode) {
+        guard let currentFrame = sceneView.session.currentFrame
+            else { return }
+        //set transform of node to be 20 cm in front of the camera
+        var translation = matrix_identity_float4x4
+        translation.columns.3.z = -0.2
+        node.simdTransform =
+        matrix_multiply(currentFrame.camera.transform, translation)
+        let cloneNode = node.clone()
+        sceneView.scene.rootNode.addChildNode(cloneNode)
+    }
+
+override func touchesBegan(_ touches: Set<UITouch>, with event:
+    UIEvent?) {
+    super.touchesBegan(touches, with: event)
+    guard let node = selectNode, let touch =
+        touches.first else { return }
+    switch objectMode {
+    case .freeform:
+        addNodeInFront(node)
+    case .plane:
+        break
+    case .image:
+        break
+    }
 }
+}
+
+
+
+
+
 
 extension ViewController: OptionsViewControllerDelegate {
     
     func objectSelected(node: SCNNode) {
         dismiss(animated: true, completion: nil)
+        selectNode = node
     }
     
     func togglePlaneVisualization() {
