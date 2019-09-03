@@ -95,6 +95,23 @@ override func touchesBegan(_ touches: Set<UITouch>, with event:
 }
 }
 
+func renderer(_ renderer: SCNSceneRenderer, didAdd node:
+    SCNNode, for anchor: ARAnchor) {
+    if let imageAnchor = anchor as? ARImageAnchor {
+        nodeAdded(node, for: imageAnchor)
+    } else if let planeAnchor = anchor as? ARPlaneAnchor {
+        nodeAdded(node, for: planeAnchor)
+    }
+}
+
+func nodeAdded(_ node: SCNNode, for anchor: ARPlaneAnchor) {
+}
+func nodeAdded(_ node: SCNNode, for anchor: ARImageAnchor) {
+}
+
+
+
+
 
 
 
