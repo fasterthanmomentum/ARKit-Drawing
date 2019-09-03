@@ -54,6 +54,15 @@ class ViewController: UIViewController, ARSCNViewDelegate {
             optionsViewController.delegate = self
         }
     }
+    
+    func addNodeToSceneRoot(_ node: SCNNode) {
+        let cloneNode = node.clone()
+        sceneView.scene.rootNode.addChildNode(cloneNode)
+        placedNodes.append(cloneNode)
+        
+    }
+    
+    
     func addNodeInFront(_ node: SCNNode) {
         guard let currentFrame = sceneView.session.currentFrame
             else { return }
@@ -63,14 +72,12 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         node.simdTransform =
         matrix_multiply(currentFrame.camera.transform, translation)
         addNodeToSceneRoot(node)
+    }
+       // let cloneNode = node.clone()
+        ////sceneView.scene.rootNode.addChildNode(cloneNode)
         
-    }
-    func addNodeToSceneRoot(_ node: SCNNode) {
-        let cloneNode = node.clone()
-        sceneView.scene.rootNode.addChildNode(cloneNode)
-        placedNodes.append(cloneNode)
-    
-    }
+ //   }
+
 
 override func touchesBegan(_ touches: Set<UITouch>, with event:
     UIEvent?) {
