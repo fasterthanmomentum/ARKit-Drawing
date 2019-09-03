@@ -6,6 +6,8 @@ class ViewController: UIViewController, ARSCNViewDelegate {
 
     @IBOutlet var sceneView: ARSCNView!
     var selectNode: SCNNode?
+    var placedNodes = [SCNNode]()
+    var planeNodes = [SCNNode]()
     
     
     let configuration = ARWorldTrackingConfiguration()
@@ -60,8 +62,14 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         translation.columns.3.z = -0.2
         node.simdTransform =
         matrix_multiply(currentFrame.camera.transform, translation)
+        addNodeToSceneRoot(node)
+        
+    }
+    func addNodeToSceneRoot(_ node: SCNNode) {
         let cloneNode = node.clone()
         sceneView.scene.rootNode.addChildNode(cloneNode)
+        placedNodes.append(cloneNode)
+    
     }
 
 override func touchesBegan(_ touches: Set<UITouch>, with event:
