@@ -13,7 +13,13 @@ class ViewController: UIViewController, ARSCNViewDelegate {
             reloadConfiguration()
         }
     }
-    
+    var showPlaneOverlay = false {
+        didSet{
+        for node in planeNodes {
+        node.isHidden = !showPlaneOverlay
+        }
+    }
+}
     
     let configuration = ARWorldTrackingConfiguration()
     
@@ -32,12 +38,13 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+           reloadConfiguration()
         sceneView.session.run(configuration)
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        reloadConfiguration()
+     
         sceneView.session.pause()
     }
     func reloadConfiguration() {
@@ -131,6 +138,7 @@ extension ViewController: OptionsViewControllerDelegate {
     
     func togglePlaneVisualization() {
         dismiss(animated: true, completion: nil)
+        showPlaneOverlay = !showPlaneOverlay
     }
     
     func undoLastObject() {
@@ -149,8 +157,31 @@ extension ViewController: OptionsViewControllerDelegate {
             nodeAdded(node, for: planeAnchor)
         }
     }
+   
+    func renderer(_ renderer: SCNSceneRenderer, didUpdate node:
+        SCNNode, for anchor: ARAnchor) {
+        guard let planeAnchor = anchor as? ARPlaneAnchor,
+        let planeNode = node.childNodes.first,
+            let plane = planeNode.geometry as? SCNPlane else {
+                return
+        }
+        planeNode.position = SCNVector3(planeAnchor.center.x, 0,
+        planeAnchor.center.z)
+        plane.width = CGFloat(planeAnchor.extent.x)
+        plane.height = CGFloat(planeAnchor.extent.z)
+    }
     
-    
+    func createFloor(planeAnchor: ARPlaneAnchor) -> SCNNode {
+        let node = SCNNode()
+        let geometry = SCNPlane(width:
+            CGFloat(planeAnchor.extent.x), height:
+            CGFloat(planeAnchor.extent.z))
+        node.geometry = geometry
+        node.eulerAngles.x = -Float.pi / 2
+        node.opacity = 0.25
+        
+        return node
+    }
     
     
     
@@ -158,7 +189,15 @@ extension ViewController: OptionsViewControllerDelegate {
     
     
     func nodeAdded(_ node: SCNNode, for anchor: ARPlaneAnchor) {
+        let floor = createFloor(planeAnchor: anchor)
+        floor.isHidden = !showPlaneOverlay
+        node.addChildNode(floor)
+        planeNodes.append(floor)
     }
+    
+ 
+    
+    
     func nodeAdded(_ node: SCNNode, for anchor: ARImageAnchor) {
         if let selectNode = selectNode {
             addNode(selectNode, toImageUsingParentNode: node)
