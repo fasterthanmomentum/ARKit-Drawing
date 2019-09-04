@@ -167,7 +167,7 @@ override func touchesBegan(_ touches: Set<UITouch>, with event:
         super.touchesMoved(touches, with: event)
         guard objectMode == .plane,
         let node = selectNode,
-        let touch = touches.first,
+            let touch = touches.first, 
             let lastTouchPoint = lastObjectPlacedPoint else {
                 return
         }
