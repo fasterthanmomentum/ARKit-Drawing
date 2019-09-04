@@ -10,7 +10,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     var planeNodes = [SCNNode]()
     var objectMode:  ObjectPlacementMode = .freeform {
      didSet {
-        reloadConfiguration()
+        reloadConfiguration(removeAnchors: false)
         }
     }
     var lastObjectPlacedPoint: CGPoint?
@@ -48,9 +48,20 @@ class ViewController: UIViewController, ARSCNViewDelegate {
        reloadConfiguration()
         //.sceneView.session.pause()
     }
-    func reloadConfiguration() {
+    func reloadConfiguration(removeAnchors: Bool = true) {
+        configuration.planeDetection = [.horizontal, .vertical]
         configuration.detectionImages = (objectMode == .image) ?
             ARReferenceImage.referenceImages(inGroupNamed: "AR Resources", bundle: nil) : nil
+        let options: ARSession.RunOptions
+        if removeAnchors {
+            options = [.removeExistingAnchors]
+            for node in placedNodes {
+                node.removeFromParentNode()
+            }
+            placedNodes.removeAll()
+        } else {
+            options = []
+        }
         sceneView.session.run(configuration)
     }
     
@@ -227,6 +238,7 @@ extension ViewController: OptionsViewControllerDelegate {
     
     func resetScene() {
         dismiss(animated: true, completion: nil)
+        reloadConfiguration()
     }
 
     
