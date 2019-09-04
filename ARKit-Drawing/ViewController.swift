@@ -60,7 +60,9 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         configuration.planeDetection = [.horizontal, .vertical]
         configuration.detectionImages = (objectMode == .image) ?
             ARReferenceImage.referenceImages(inGroupNamed: "AR Resources", bundle: nil) : nil
+        
         let options: ARSession.RunOptions
+        
         if removeAnchors {
             options = [.removeExistingAnchors]
             for node in planeNodes {
@@ -74,7 +76,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         } else {
             options = []
         }
-        sceneView.session.run(configuration)
+        sceneView.session.run(configuration, options: options)
     }
     
     
@@ -138,8 +140,10 @@ override func touchesBegan(_ touches: Set<UITouch>, with event:
         touches.first else { return }
     
     switch objectMode {
+    //case .freeform:
+        //addNodeInFront(node)
     case .freeform:
-        addNodeInFront(node)
+        break
     case .plane:
         let touchPoint = touch.location(in: sceneView)
         addNode(node, toPlaneUsingPoint: touchPoint)
