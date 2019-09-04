@@ -13,13 +13,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
             reloadConfiguration()
         }
     }
-    var showPlaneOverlay = false {
-        didSet{
-        for node in planeNodes {
-        node.isHidden = !showPlaneOverlay
-        }
-    }
-}
+   
     
     let configuration = ARWorldTrackingConfiguration()
     
@@ -112,12 +106,29 @@ override func touchesBegan(_ touches: Set<UITouch>, with event:
     case .freeform:
         addNodeInFront(node)
     case .plane:
-        break
+        let touchPoint = touch.location(in: sceneView)
+        addNode(node, toPlaneUsingPoint: touchPoint)
     case .image:
         break
     }
 }
+    func addNode(_ node: SCNNode, toPlaneUsingPoint point: CGPoint) {
+        let results = sceneView.hitTest(point, types:
+        [.existingPlaneUsingExtent])
+        if let match = results.first {
+            let t = match.worldTransform
+            node.position = SCNVector3(x: t.columns.3.x, y:
+                t.columns.3.y, z: t.columns.3.z)
+            addNodeToSceneRoot(node)
+        }
+    }
+
 }
+
+
+
+
+
 
 
 
@@ -130,6 +141,11 @@ override func touchesBegan(_ touches: Set<UITouch>, with event:
 
 
 extension ViewController: OptionsViewControllerDelegate {
+   
+    
+    
+    
+    
     
     func objectSelected(node: SCNNode) {
         dismiss(animated: true, completion: nil)
@@ -138,6 +154,13 @@ extension ViewController: OptionsViewControllerDelegate {
     
     func togglePlaneVisualization() {
         dismiss(animated: true, completion: nil)
+        var showPlaneOverlay = false {
+            didSet{
+                for node in planeNodes {
+                    node.isHidden = !showPlaneOverlay
+                }
+            }
+        }
         showPlaneOverlay = !showPlaneOverlay
     }
     
@@ -149,70 +172,6 @@ extension ViewController: OptionsViewControllerDelegate {
         dismiss(animated: true, completion: nil)
     }
 
-    func renderer(_ renderer: SCNSceneRenderer, didAdd node:
-        SCNNode, for anchor: ARAnchor) {
-        if let imageAnchor = anchor as? ARImageAnchor {
-            nodeAdded(node, for: imageAnchor)
-        } else if let planeAnchor = anchor as? ARPlaneAnchor {
-            nodeAdded(node, for: planeAnchor)
-        }
-    }
-   
-    func renderer(_ renderer: SCNSceneRenderer, didUpdate node:
-        SCNNode, for anchor: ARAnchor) {
-        guard let planeAnchor = anchor as? ARPlaneAnchor,
-        let planeNode = node.childNodes.first,
-            let plane = planeNode.geometry as? SCNPlane else {
-                return
-        }
-        planeNode.position = SCNVector3(planeAnchor.center.x, 0,
-        planeAnchor.center.z)
-        plane.width = CGFloat(planeAnchor.extent.x)
-        plane.height = CGFloat(planeAnchor.extent.z)
-    }
-    
-    func createFloor(planeAnchor: ARPlaneAnchor) -> SCNNode {
-        let node = SCNNode()
-        let geometry = SCNPlane(width:
-            CGFloat(planeAnchor.extent.x), height:
-            CGFloat(planeAnchor.extent.z))
-        node.geometry = geometry
-        node.eulerAngles.x = -Float.pi / 2
-        node.opacity = 0.25
-        
-        return node
-    }
-    
-    
-    
-    
-    
-    
-    func nodeAdded(_ node: SCNNode, for anchor: ARPlaneAnchor) {
-        let floor = createFloor(planeAnchor: anchor)
-        floor.isHidden = !showPlaneOverlay
-        node.addChildNode(floor)
-        planeNodes.append(floor)
-    }
-    
- 
-    
-    
-    func nodeAdded(_ node: SCNNode, for anchor: ARImageAnchor) {
-        if let selectNode = selectNode {
-            addNode(selectNode, toImageUsingParentNode: node)
-        }
-    }
-    
-    func addNode(_ node: SCNNode, toImageUsingParentNode parentNode: SCNNode) {
-        let cloneNode = node.clone()
-        parentNode.addChildNode(cloneNode)
-        placedNodes.append(cloneNode)
-    }
-
-    
-    
-    
     
     
     
