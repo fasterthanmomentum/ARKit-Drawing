@@ -15,6 +15,14 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     }
     var lastObjectPlacedPoint: CGPoint?
     let touchDistanceThreshold:CGFloat = 40.0
+    var showPlaneOverlay = false {
+         didSet {
+           for node in planeNodes {
+           node.isHidden = !showPlaneOverlay
+          }
+         }
+        }
+    
     
     //var objectMode:  ObjectPlacementMode = .freeform {
     //   didSet {
@@ -217,13 +225,13 @@ extension ViewController: OptionsViewControllerDelegate {
         //   didSet {
         //     reloadConfiguration()
         //}
-        var showPlaneOverlay = false {
-            didSet {
-                for node in planeNodes {
-                    node.isHidden = !showPlaneOverlay
-                }
-            }
-        }
+        //var showPlaneOverlay = false {
+          //  didSet {
+            //    for node in planeNodes {
+                //    node.isHidden = !showPlaneOverlay
+              //  }
+           // }
+        //}
         
         showPlaneOverlay = !showPlaneOverlay
     }
