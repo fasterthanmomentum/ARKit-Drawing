@@ -13,7 +13,9 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         reloadConfiguration()
         }
     }
- 
+    var lastObjectPlacedPoint: CGPoint?
+    let touchDistanceThreshold:CGFloat = 40.0
+    
     //var objectMode:  ObjectPlacementMode = .freeform {
     //   didSet {
     //     reloadConfiguration()
@@ -131,10 +133,30 @@ override func touchesBegan(_ touches: Set<UITouch>, with event:
             node.position = SCNVector3(x: t.columns.3.x, y:
                 t.columns.3.y, z: t.columns.3.z)
             addNodeToSceneRoot(node)
+            lastObjectPlacedPoint = point
         }
     }
-
-
+    override func touchesMoved(_ touches: Set<UITouch>, with
+        event: UIEvent?) {
+        super.touchesMoved(touches, with: event)
+        guard objectMode == .plane,
+        let node = selectNode,
+        let touch = touches.first,
+            let lastTouchPoint = lastObjectPlacedPoint else {
+                return
+        }
+        let newTouchPoint = touch.location(in: sceneView)
+        //addNode(node, toPlaneUsingPoint: newTouchPoint)
+        let distance = sqrt(pow((newTouchPoint.x -
+        lastTouchPoint.x), 2.0) + pow((newTouchPoint.y - lastTouchPoint.y), 2.0))
+        if distance > touchDistanceThreshold {
+            addNode(node, toPlaneUsingPoint: newTouchPoint)
+        }
+    }
+    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        super.touchesEnded(touches, with: event)
+        lastObjectPlacedPoint = nil
+    }
 
 
 
@@ -196,6 +218,10 @@ extension ViewController: OptionsViewControllerDelegate {
     }
     
     func undoLastObject() {
+        if let lastNode = placedNodes.last {
+            lastNode.removeFromParentNode()
+            placedNodes.removeLast()
+        }
         
     }
     
