@@ -9,11 +9,15 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     var placedNodes = [SCNNode]()
     var planeNodes = [SCNNode]()
     var objectMode:  ObjectPlacementMode = .freeform {
-        didSet {
-            reloadConfiguration()
+     didSet {
+        reloadConfiguration()
         }
     }
-   
+ 
+    //var objectMode:  ObjectPlacementMode = .freeform {
+    //   didSet {
+    //     reloadConfiguration()
+    //}
     
     let configuration = ARWorldTrackingConfiguration()
     
@@ -39,7 +43,8 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
      
-        sceneView.session.pause()
+       reloadConfiguration()
+        //.sceneView.session.pause()
     }
     func reloadConfiguration() {
         configuration.detectionImages = (objectMode == .image) ?
@@ -54,6 +59,11 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     
 
     @IBAction func changeObjectMode(_ sender: UISegmentedControl) {
+
+        
+        
+        
+        
         switch sender.selectedSegmentIndex {
         case 0:
             objectMode = .freeform
@@ -102,6 +112,7 @@ override func touchesBegan(_ touches: Set<UITouch>, with event:
     super.touchesBegan(touches, with: event)
     guard let node = selectNode, let touch =
         touches.first else { return }
+    
     switch objectMode {
     case .freeform:
         addNodeInFront(node)
@@ -123,6 +134,21 @@ override func touchesBegan(_ touches: Set<UITouch>, with event:
         }
     }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }
 
 
@@ -142,7 +168,7 @@ override func touchesBegan(_ touches: Set<UITouch>, with event:
 
 extension ViewController: OptionsViewControllerDelegate {
    
-    
+
     
     
     
@@ -154,13 +180,18 @@ extension ViewController: OptionsViewControllerDelegate {
     
     func togglePlaneVisualization() {
         dismiss(animated: true, completion: nil)
+        //var objectMode:  ObjectPlacementMode = .freeform {
+        //   didSet {
+        //     reloadConfiguration()
+        //}
         var showPlaneOverlay = false {
-            didSet{
+            didSet {
                 for node in planeNodes {
                     node.isHidden = !showPlaneOverlay
                 }
             }
         }
+        
         showPlaneOverlay = !showPlaneOverlay
     }
     
@@ -180,3 +211,4 @@ extension ViewController: OptionsViewControllerDelegate {
     
     
 }
+
