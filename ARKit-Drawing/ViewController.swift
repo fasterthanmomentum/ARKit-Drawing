@@ -148,7 +148,7 @@ extension ViewController: OptionsViewControllerDelegate {
     func resetScene() {
         dismiss(animated: true, completion: nil)
     }
-    
+
     func renderer(_ renderer: SCNSceneRenderer, didAdd node:
         SCNNode, for anchor: ARAnchor) {
         if let imageAnchor = anchor as? ARImageAnchor {
