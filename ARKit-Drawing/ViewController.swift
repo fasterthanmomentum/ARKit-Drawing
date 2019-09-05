@@ -8,11 +8,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     var selectNode: SCNNode?
     var placedNodes = [SCNNode]()
     var planeNodes = [SCNNode]()
-    var objectMode:  ObjectPlacementMode = .freeform {
-     didSet {
-        reloadConfiguration(removeAnchors: false)
-        }
-    }
+   
     var lastObjectPlacedPoint: CGPoint?
     let touchDistanceThreshold: CGFloat = 40.0
     var showPlaneOverlay = false {
@@ -35,7 +31,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         case freeform, plane, image
     }
     
-   // var objectMode: ObjectPlacementMode = .freeform
+   var objectMode: ObjectPlacementMode = .freeform
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -46,6 +42,14 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        var objectMode: ObjectPlacementMode = .freeform {
+            didSet {
+                reloadConfiguration()
+            }
+        }
+        
+        
+        
            reloadConfiguration()
         sceneView.session.run(configuration)
     }
@@ -54,13 +58,18 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         super.viewWillDisappear(animated)
      
        reloadConfiguration()
-        //.sceneView.session.pause()
+        sceneView.session.pause()
     }
     func reloadConfiguration(removeAnchors: Bool = true) {
         configuration.planeDetection = [.horizontal, .vertical]
         configuration.detectionImages = (objectMode == .image) ?
             ARReferenceImage.referenceImages(inGroupNamed: "AR Resources", bundle: nil) : nil
-        
+        configuration.detectionImages = (objectMode == .freeform) ?
+            ARReferenceImage.referenceImages(inGroupNamed: "AR Resources", bundle: nil) : nil
+        configuration.detectionImages = (objectMode == .plane) ?
+            ARReferenceImage.referenceImages(inGroupNamed: "AR Resources", bundle: nil) : nil
+    
+
         let options: ARSession.RunOptions
         
         if removeAnchors {
@@ -77,6 +86,8 @@ class ViewController: UIViewController, ARSCNViewDelegate {
             options = []
         }
         sceneView.session.run(configuration, options: options)
+
+        
     }
     
     
@@ -125,7 +136,8 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         translation.columns.3.z = -0.2
         node.simdTransform =
         matrix_multiply(currentFrame.camera.transform, translation)
-        addNodeToSceneRoot(node)
+     let cloneNode = node.clone()
+        sceneView.scene.rootNode.addChildNode(cloneNode)
     }
        // let cloneNode = node.clone()
         ////sceneView.scene.rootNode.addChildNode(cloneNode)
@@ -143,12 +155,14 @@ override func touchesBegan(_ touches: Set<UITouch>, with event:
     //case .freeform:
         //addNodeInFront(node)
     case .freeform:
-        break
+        //let touchPoint = touch.location(in: sceneView)
+        addNodeInFront(node)
     case .plane:
         let touchPoint = touch.location(in: sceneView)
         addNode(node, toPlaneUsingPoint: touchPoint)
     case .image:
-        break
+        let touchPoint = touch.location(in: sceneView)
+        addNode(node, toPlaneUsingPoint: touchPoint)
     }
 }
     func addNode(_ node: SCNNode, toPlaneUsingPoint point: CGPoint) {
@@ -165,9 +179,8 @@ override func touchesBegan(_ touches: Set<UITouch>, with event:
     override func touchesMoved(_ touches: Set<UITouch>, with
         event: UIEvent?) {
         super.touchesMoved(touches, with: event)
-        guard objectMode == .plane,
-        let node = selectNode,
-            let touch = touches.first, 
+        guard objectMode == .plane, let node = selectNode,
+            let touch = touches.first,
             let lastTouchPoint = lastObjectPlacedPoint else {
                 return
         }
@@ -256,23 +269,8 @@ func createFloor(planeAnchor: ARPlaneAnchor) -> SCNNode {
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 extension ViewController: OptionsViewControllerDelegate {
-   
-
+  
     
     
     
@@ -309,15 +307,14 @@ extension ViewController: OptionsViewControllerDelegate {
     
     func resetScene() {
         dismiss(animated: true, completion: nil)
+      
+        
+        
+        
+        
         reloadConfiguration()
     }
 
-    
-    
-    
-    
-    
-    
     
 }
 
