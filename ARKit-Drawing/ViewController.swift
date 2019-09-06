@@ -18,12 +18,22 @@ class ViewController: UIViewController, ARSCNViewDelegate {
           }
          }
         }
+    var objectMode: ObjectPlacementMode = .freeform {
+        didSet {
+            reloadConfiguration(removeAnchors: false)
+        }
+    }
     
     
-    //var objectMode:  ObjectPlacementMode = .freeform {
-    //   didSet {
-    //     reloadConfiguration()
-    //}
+    
+    
+    
+    
+   // var objectMode:  ObjectPlacementMode = .freeform {
+      //  didSet {
+        //    reloadConfiguration(removeAnchors: false)
+       // }
+   // }
     
     let configuration = ARWorldTrackingConfiguration()
     
@@ -31,7 +41,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         case freeform, plane, image
     }
     
-   var objectMode: ObjectPlacementMode = .freeform
+   //var objectMode: ObjectPlacementMode = .freeform
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -42,16 +52,8 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        var objectMode: ObjectPlacementMode = .freeform {
-            didSet {
-                reloadConfiguration()
-            }
-        }
-        
-        
-        
            reloadConfiguration()
-        sceneView.session.run(configuration)
+        
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -60,17 +62,28 @@ class ViewController: UIViewController, ARSCNViewDelegate {
        reloadConfiguration()
         sceneView.session.pause()
     }
+    
     func reloadConfiguration(removeAnchors: Bool = true) {
         configuration.planeDetection = [.horizontal, .vertical]
         configuration.detectionImages = (objectMode == .image) ?
             ARReferenceImage.referenceImages(inGroupNamed: "AR Resources", bundle: nil) : nil
-        configuration.detectionImages = (objectMode == .freeform) ?
-            ARReferenceImage.referenceImages(inGroupNamed: "AR Resources", bundle: nil) : nil
         configuration.detectionImages = (objectMode == .plane) ?
             ARReferenceImage.referenceImages(inGroupNamed: "AR Resources", bundle: nil) : nil
-    
-
+        configuration.detectionImages = (objectMode == .freeform) ?
+            ARReferenceImage.referenceImages(inGroupNamed: "AR Resources", bundle: nil) : nil
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
         let options: ARSession.RunOptions
+        
         
         if removeAnchors {
             options = [.removeExistingAnchors]
@@ -86,19 +99,12 @@ class ViewController: UIViewController, ARSCNViewDelegate {
             options = []
         }
         sceneView.session.run(configuration, options: options)
-
         
     }
     
     
-    
-
-    
 
     @IBAction func changeObjectMode(_ sender: UISegmentedControl) {
-
-        
-        
         
         
         switch sender.selectedSegmentIndex {
@@ -111,6 +117,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         default:
             break
         }
+
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -122,9 +129,8 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     
     func addNodeToSceneRoot(_ node: SCNNode) {
         let cloneNode = node.clone()
-        sceneView.scene.rootNode.addChildNode(cloneNode)
+    sceneView.scene.rootNode.addChildNode(cloneNode)
         placedNodes.append(cloneNode)
-        
     }
     
     
@@ -136,8 +142,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         translation.columns.3.z = -0.2
         node.simdTransform =
         matrix_multiply(currentFrame.camera.transform, translation)
-     let cloneNode = node.clone()
-        sceneView.scene.rootNode.addChildNode(cloneNode)
+     addNodeToSceneRoot(node)
     }
        // let cloneNode = node.clone()
         ////sceneView.scene.rootNode.addChildNode(cloneNode)
@@ -152,17 +157,16 @@ override func touchesBegan(_ touches: Set<UITouch>, with event:
         touches.first else { return }
     
     switch objectMode {
-    //case .freeform:
-        //addNodeInFront(node)
     case .freeform:
+        //addNodeInFront(node)
+
         //let touchPoint = touch.location(in: sceneView)
         addNodeInFront(node)
     case .plane:
         let touchPoint = touch.location(in: sceneView)
         addNode(node, toPlaneUsingPoint: touchPoint)
     case .image:
-        let touchPoint = touch.location(in: sceneView)
-        addNode(node, toPlaneUsingPoint: touchPoint)
+      break
     }
 }
     func addNode(_ node: SCNNode, toPlaneUsingPoint point: CGPoint) {
@@ -176,16 +180,13 @@ override func touchesBegan(_ touches: Set<UITouch>, with event:
             lastObjectPlacedPoint = point
         }
     }
-    override func touchesMoved(_ touches: Set<UITouch>, with
-        event: UIEvent?) {
+    override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
         super.touchesMoved(touches, with: event)
         guard objectMode == .plane, let node = selectNode,
             let touch = touches.first,
-            let lastTouchPoint = lastObjectPlacedPoint else {
-                return
-        }
+            let lastTouchPoint = lastObjectPlacedPoint else { return }
         let newTouchPoint = touch.location(in: sceneView)
-        //addNode(node, toPlaneUsingPoint: newTouchPoint)
+       
         let distance = sqrt(pow((newTouchPoint.x -
         lastTouchPoint.x), 2.0) + pow((newTouchPoint.y - lastTouchPoint.y), 2.0))
         if distance > touchDistanceThreshold {
@@ -270,7 +271,10 @@ func createFloor(planeAnchor: ARPlaneAnchor) -> SCNNode {
 
 
 extension ViewController: OptionsViewControllerDelegate {
-  
+    
+    
+    
+
     
     
     
@@ -278,43 +282,29 @@ extension ViewController: OptionsViewControllerDelegate {
     func objectSelected(node: SCNNode) {
         dismiss(animated: true, completion: nil)
         selectNode = node
+        
+    
+        
     }
     
     func togglePlaneVisualization() {
         dismiss(animated: true, completion: nil)
-        //var objectMode:  ObjectPlacementMode = .freeform {
-        //   didSet {
-        //     reloadConfiguration()
-        //}
-        //var showPlaneOverlay = false {
-          //  didSet {
-            //    for node in planeNodes {
-                //    node.isHidden = !showPlaneOverlay
-              //  }
-           // }
-        //}
+      
+        
         
         showPlaneOverlay = !showPlaneOverlay
-    }
-    
+     }
+
     func undoLastObject() {
         if let lastNode = placedNodes.last {
             lastNode.removeFromParentNode()
             placedNodes.removeLast()
         }
-        
     }
-    
     func resetScene() {
         dismiss(animated: true, completion: nil)
-      
-        
-        
-        
-        
         reloadConfiguration()
     }
-
-    
 }
+
 
