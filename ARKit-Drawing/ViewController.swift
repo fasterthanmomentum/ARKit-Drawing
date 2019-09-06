@@ -18,22 +18,19 @@ class ViewController: UIViewController, ARSCNViewDelegate {
           }
          }
         }
-    var objectMode: ObjectPlacementMode = .freeform {
-        didSet {
-            reloadConfiguration(removeAnchors: false)
-        }
+
+    
+
+    
+    
+    
+    
+    
+    var objectMode:  ObjectPlacementMode = .freeform {
+       didSet {
+           reloadConfiguration(removeAnchors: false)
     }
-    
-    
-    
-    
-    
-    
-   // var objectMode:  ObjectPlacementMode = .freeform {
-      //  didSet {
-        //    reloadConfiguration(removeAnchors: false)
-       // }
-   // }
+}
     
     let configuration = ARWorldTrackingConfiguration()
     
@@ -67,20 +64,8 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         configuration.planeDetection = [.horizontal, .vertical]
         configuration.detectionImages = (objectMode == .image) ?
             ARReferenceImage.referenceImages(inGroupNamed: "AR Resources", bundle: nil) : nil
-        configuration.detectionImages = (objectMode == .plane) ?
-            ARReferenceImage.referenceImages(inGroupNamed: "AR Resources", bundle: nil) : nil
-        configuration.detectionImages = (objectMode == .freeform) ?
-            ARReferenceImage.referenceImages(inGroupNamed: "AR Resources", bundle: nil) : nil
         
-        
-        
-        
-        
-        
-        
-        
-        
-        
+
         
         let options: ARSession.RunOptions
         
@@ -296,9 +281,12 @@ extension ViewController: OptionsViewControllerDelegate {
      }
 
     func undoLastObject() {
+       
         if let lastNode = placedNodes.last {
             lastNode.removeFromParentNode()
             placedNodes.removeLast()
+            
+            
         }
     }
     func resetScene() {
