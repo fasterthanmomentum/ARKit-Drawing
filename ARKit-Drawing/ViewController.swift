@@ -65,8 +65,6 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         configuration.detectionImages = (objectMode == .image) ?
             ARReferenceImage.referenceImages(inGroupNamed: "AR Resources", bundle: nil) : nil
         
-
-        
         let options: ARSession.RunOptions
         
         
@@ -111,12 +109,18 @@ class ViewController: UIViewController, ARSCNViewDelegate {
             optionsViewController.delegate = self
         }
     }
-    
     func addNodeToSceneRoot(_ node: SCNNode) {
         let cloneNode = node.clone()
-    sceneView.scene.rootNode.addChildNode(cloneNode)
+        sceneView.scene.rootNode.addChildNode(cloneNode)
         placedNodes.append(cloneNode)
     }
+    
+    
+  
+    
+    
+    
+    
     
     
     func addNodeInFront(_ node: SCNNode) {
@@ -129,6 +133,12 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         matrix_multiply(currentFrame.camera.transform, translation)
      addNodeToSceneRoot(node)
     }
+    
+
+    
+    
+    
+    
        // let cloneNode = node.clone()
         ////sceneView.scene.rootNode.addChildNode(cloneNode)
         
@@ -151,7 +161,9 @@ override func touchesBegan(_ touches: Set<UITouch>, with event:
         let touchPoint = touch.location(in: sceneView)
         addNode(node, toPlaneUsingPoint: touchPoint)
     case .image:
-      break
+        let touchPoint = touch.location(in: sceneView)
+        addNode(node, toPlaneUsingPoint: touchPoint)
+        //addNodeInFront(node)
     }
 }
     func addNode(_ node: SCNNode, toPlaneUsingPoint point: CGPoint) {
@@ -167,7 +179,8 @@ override func touchesBegan(_ touches: Set<UITouch>, with event:
     }
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
         super.touchesMoved(touches, with: event)
-        guard objectMode == .plane, let node = selectNode,
+        guard objectMode == .plane,
+            let node = selectNode,
             let touch = touches.first,
             let lastTouchPoint = lastObjectPlacedPoint else { return }
         let newTouchPoint = touch.location(in: sceneView)
@@ -234,7 +247,7 @@ func createFloor(planeAnchor: ARPlaneAnchor) -> SCNNode {
     node.eulerAngles.x = -Float.pi / 2
     node.opacity = 0.25
     return
-    node
+node
 }
     
     
@@ -267,7 +280,7 @@ extension ViewController: OptionsViewControllerDelegate {
     func objectSelected(node: SCNNode) {
         dismiss(animated: true, completion: nil)
         selectNode = node
-        
+      reloadConfiguration()
     
         
     }
