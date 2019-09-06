@@ -285,8 +285,7 @@ extension ViewController: OptionsViewControllerDelegate {
         if let lastNode = placedNodes.last {
             lastNode.removeFromParentNode()
             placedNodes.removeLast()
-            
-            
+
         }
     }
     func resetScene() {
